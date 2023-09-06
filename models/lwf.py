@@ -61,7 +61,7 @@ class Lwf(ContinualModel):
                         feats = self.net(inputs, returnt='features')
                     mask = self.eye[(self.current_task + 1) * self.cpt - 1] ^ self.eye[self.current_task * self.cpt - 1]
                     outputs = self.net.classifier(feats)[:, mask]
-                    loss = self.loss(outputs, labels - self.current_task * self.cpt)
+                    loss = self.loss(outputs, labels.type(torch.LongTensor).to(self.device) - self.current_task * self.cpt)
                     loss.backward()
                     opt.step()
 
@@ -83,7 +83,8 @@ class Lwf(ContinualModel):
         outputs = self.net(inputs)
 
         mask = self.eye[self.current_task * self.cpt - 1]
-        loss = self.loss(outputs[:, mask], labels)
+        # loss = self.loss(outputs[:, mask], labels)
+        loss = self.loss(outputs[:, mask], labels.type(torch.LongTensor).to(self.device))
         if logits is not None:
             mask = self.eye[(self.current_task - 1) * self.cpt - 1]
             loss += self.args.alpha * modified_kl_div(smooth(self.soft(logits[:, mask]).to(self.device), 2, 1),

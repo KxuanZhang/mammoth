@@ -44,7 +44,7 @@ def lecun_fix():
 
 def parse_args():
     parser = ArgumentParser(description='mammoth', allow_abbrev=False)
-    parser.add_argument('--model', type=str, required=True,
+    parser.add_argument('--model', type=str, default='lwf',
                         help='Model name.', choices=get_all_models())
     parser.add_argument('--load_best_args', action='store_true',
                         help='Loads the best arguments for each method, '
@@ -55,11 +55,11 @@ def parse_args():
     mod = importlib.import_module('models.' + args.model)
 
     if args.load_best_args:
-        parser.add_argument('--dataset', type=str, required=True,
+        parser.add_argument('--dataset', type=str, default='seq-cifar10',
                             choices=DATASET_NAMES,
                             help='Which dataset to perform experiments on.')
         if hasattr(mod, 'Buffer'):
-            parser.add_argument('--buffer_size', type=int, required=True,
+            parser.add_argument('--buffer_size', type=int, default=100,
                                 help='The size of the memory buffer.')
         args = parser.parse_args()
         if args.model == 'joint':

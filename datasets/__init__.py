@@ -12,7 +12,7 @@ from datasets.utils.continual_dataset import ContinualDataset
 
 
 def get_all_models():
-    return [model.split('.')[0] for model in os.listdir('datasets')
+    return [model.split('.')[0] for model in os.listdir('../datasets')
             if not model.find('__') > -1 and 'py' in model]
 
 

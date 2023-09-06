@@ -13,13 +13,13 @@ def add_experiment_args(parser: ArgumentParser) -> None:
     Adds the arguments used by all the models.
     :param parser: the parser instance
     """
-    parser.add_argument('--dataset', type=str, required=True,
+    parser.add_argument('--dataset', type=str, default='seq-cifar10',
                         choices=DATASET_NAMES,
                         help='Which dataset to perform experiments on.')
-    parser.add_argument('--model', type=str, required=True,
+    parser.add_argument('--model', type=str, default='lwf',
                         help='Model name.', choices=get_all_models())
 
-    parser.add_argument('--lr', type=float, required=True,
+    parser.add_argument('--lr', type=float, default=0.001,
                         help='Learning rate.')
 
     parser.add_argument('--optim_wd', type=float, default=0.,
@@ -29,7 +29,7 @@ def add_experiment_args(parser: ArgumentParser) -> None:
     parser.add_argument('--optim_nesterov', type=int, default=0,
                         help='optimizer nesterov momentum.')
 
-    parser.add_argument('--n_epochs', type=int,
+    parser.add_argument('--n_epochs', type=int, default=30,
                         help='Batch size.')
     parser.add_argument('--batch_size', type=int,
                         help='Batch size.')
@@ -52,7 +52,7 @@ def add_management_args(parser: ArgumentParser) -> None:
                         help='disable additional metrics')
     parser.add_argument('--debug_mode', type=int, default=0, help='Run only a few forward steps per epoch')
     parser.add_argument('--nowand', default=0, choices=[0, 1], type=int, help='Inhibit wandb logging')
-    parser.add_argument('--wandb_entity', type=str, default='regaz', help='Wandb entity')
+    parser.add_argument('--wandb_entity', type=str, default='kaixuanzhang', help='Wandb entity')
     parser.add_argument('--wandb_project', type=str, default='mammoth', help='Wandb project name')
 
 

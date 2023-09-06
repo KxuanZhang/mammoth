@@ -7,7 +7,7 @@ import os
 import importlib
 
 def get_all_models():
-    return [model.split('.')[0] for model in os.listdir('models')
+    return [model.split('.')[0] for model in os.listdir('../models')
             if not model.find('__') > -1 and 'py' in model]
 
 names = {}
