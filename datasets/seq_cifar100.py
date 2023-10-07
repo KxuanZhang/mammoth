@@ -17,7 +17,7 @@ from datasets.utils.continual_dataset import (ContinualDataset,
                                               store_masked_loaders)
 from datasets.utils.validation import get_train_val
 from utils.conf import base_path_dataset as base_path
-
+from datasets.augmentations import  get_aug
 
 class TCIFAR100(CIFAR100):
     """Workaround to avoid printing the already downloaded messages."""
@@ -80,11 +80,14 @@ class SequentialCIFAR100(ContinualDataset):
                                   download=True)
         return len(train_dataset.data)
 
-    def get_data_loaders(self):
-        transform = self.TRANSFORM
-
-        test_transform = transforms.Compose(
-            [transforms.ToTensor(), self.get_normalization_transform()])
+    def get_data_loaders(self, args=None):
+        if args == None:
+            transform = self.TRANSFORM
+            test_transform = transforms.Compose(
+                [transforms.ToTensor(), self.get_normalization_transform()])
+        else:
+            transform = get_aug(train=True, **args.aug_kwargs)
+            test_transform = get_aug(train=False, train_classifier=False, **args.aug_kwargs)
 
         train_dataset = MyCIFAR100(base_path() + 'CIFAR100', train=True,
                                   download=True, transform=transform)

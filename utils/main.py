@@ -26,7 +26,7 @@ from datasets import NAMES as DATASET_NAMES
 from datasets import ContinualDataset, get_dataset
 from models import get_all_models, get_model
 
-from utils.args import add_management_args
+from utils.args import add_management_args,  add_experiment_args, add_rehearsal_args
 from utils.best_args import best_args
 from utils.conf import set_random_seed
 from utils.continual_training import train as ctrain
@@ -44,7 +44,7 @@ def lecun_fix():
 
 def parse_args():
     parser = ArgumentParser(description='mammoth', allow_abbrev=False)
-    parser.add_argument('--model', type=str, default='lwf',
+    parser.add_argument('--model', type=str, default='er',
                         help='Model name.', choices=get_all_models())
     parser.add_argument('--load_best_args', action='store_true',
                         help='Loads the best arguments for each method, '
@@ -54,6 +54,7 @@ def parse_args():
     args = parser.parse_known_args()[0]
     mod = importlib.import_module('models.' + args.model)
 
+    # 加载最好的配置，一般的实验不需要
     if args.load_best_args:
         parser.add_argument('--dataset', type=str, default='seq-cifar10',
                             choices=DATASET_NAMES,
@@ -78,13 +79,19 @@ def parse_args():
         if args.model == 'joint' and args.dataset == 'mnist-360':
             args.model = 'joint_gcl'
     else:
-        get_parser = getattr(mod, 'get_parser')
-        parser = get_parser()
+        # get_parser = getattr(mod, 'get_parser')
+        # parser = get_parser()
+        parser = ArgumentParser(description='Continual learning, define  hyperparameters')
+        add_management_args(parser)
+        add_experiment_args(parser)
+        add_rehearsal_args(parser)
         args = parser.parse_args()
 
     if args.seed is not None:
         set_random_seed(args.seed)
 
+    # print(args)
+    # sys.exit()
     return args
 
 

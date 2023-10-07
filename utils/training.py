@@ -5,6 +5,7 @@
 
 import math
 import sys
+import time
 from argparse import Namespace
 from typing import Tuple
 
@@ -21,6 +22,7 @@ try:
 except ImportError:
     wandb = None
 
+#把模型的output，中的其他类别的信息mask掉，也就是说10分类，把八个类别的信息mask掉了
 def mask_classes(outputs: torch.Tensor, dataset: ContinualDataset, k: int) -> None:
     """
     Given the output tensor, the dataset at hand and the current task,
@@ -108,8 +110,10 @@ def train(model: ContinualModel, dataset: ContinualDataset,
             random_results_class, random_results_task = evaluate(model, dataset_copy)
 
     print(file=sys.stderr)
+    start_time = time.time()
     for t in range(dataset.N_TASKS):
         model.net.train()
+        # 每次get_data_loaders，train_loader会返回一个新的，test_loader是一个list，每次会增加一个
         train_loader, test_loader = dataset.get_data_loaders()
         if hasattr(model, 'begin_task'):
             model.begin_task(dataset)
@@ -166,7 +170,8 @@ def train(model: ContinualModel, dataset: ContinualDataset,
 
             wandb.log(d2)
 
-
+    end_time = time.time()
+    wandb.log({'Train_time': end_time - start_time})
 
     if not args.disable_log and not args.ignore_other_metrics:
         logger.add_bwt(results, results_mask_classes)

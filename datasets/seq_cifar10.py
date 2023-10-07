@@ -16,6 +16,7 @@ from datasets.transforms.denormalization import DeNormalize
 from datasets.utils.continual_dataset import (ContinualDataset,
                                               store_masked_loaders)
 from datasets.utils.validation import get_train_val
+from datasets.augmentations import  get_aug
 
 class TCIFAR10(CIFAR10):
     """Workaround to avoid printing the already downloaded messages."""
@@ -73,20 +74,43 @@ class SequentialCIFAR10(ContinualDataset):
              transforms.Normalize((0.4914, 0.4822, 0.4465),
                                   (0.2470, 0.2435, 0.2615))])
 
-    def get_data_loaders(self):
-        transform = self.TRANSFORM
+    # def get_data_loaders(self):
+    #     transform = self.TRANSFORM
+    #
+    #     test_transform = transforms.Compose(
+    #         [transforms.ToTensor(), self.get_normalization_transform()])
+    #
+    #     train_dataset = MyCIFAR10(base_path() + 'CIFAR10', train=True,
+    #                               download=True, transform=transform)
+    #     if self.args.validation:
+    #         train_dataset, test_dataset = get_train_val(train_dataset,
+    #                                                 test_transform, self.NAME)
+    #     else:
+    #         test_dataset = TCIFAR10(base_path() + 'CIFAR10',train=False,
+    #                                download=True, transform=test_transform)
+    #
+    #     train, test = store_masked_loaders(train_dataset, test_dataset, self)
+    #     return train, test
 
-        test_transform = transforms.Compose(
-            [transforms.ToTensor(), self.get_normalization_transform()])
+    # 不传递args就用默认的transform，传递了args就用对应的transform
+    def get_data_loaders(self, args=None):
+        if args == None:
+            transform = self.TRANSFORM
+            test_transform = transforms.Compose(
+                [transforms.ToTensor(), self.get_normalization_transform()])
+        else:
+            transform = get_aug(train=True, **args.aug_kwargs)
+            test_transform = get_aug(train=False, train_classifier=False, **args.aug_kwargs)
 
         train_dataset = MyCIFAR10(base_path() + 'CIFAR10', train=True,
                                   download=True, transform=transform)
+
+
         if self.args.validation:
-            train_dataset, test_dataset = get_train_val(train_dataset,
-                                                    test_transform, self.NAME)
+            train_dataset, test_dataset = get_train_val(train_dataset, test_transform, self.NAME)
         else:
-            test_dataset = TCIFAR10(base_path() + 'CIFAR10',train=False,
-                                   download=True, transform=test_transform)
+            test_dataset = TCIFAR10(base_path() + 'CIFAR10', train=False,
+                                    download=True, transform=test_transform)
 
         train, test = store_masked_loaders(train_dataset, test_dataset, self)
         return train, test
@@ -96,6 +120,7 @@ class SequentialCIFAR10(ContinualDataset):
         transform = transforms.Compose(
             [transforms.ToPILImage(), SequentialCIFAR10.TRANSFORM])
         return transform
+
 
     @staticmethod
     def get_backbone():

@@ -16,9 +16,10 @@ def add_experiment_args(parser: ArgumentParser) -> None:
     parser.add_argument('--dataset', type=str, default='seq-cifar10',
                         choices=DATASET_NAMES,
                         help='Which dataset to perform experiments on.')
-    parser.add_argument('--model', type=str, default='lwf',
+    parser.add_argument('--model', type=str, default='er',
                         help='Model name.', choices=get_all_models())
-
+    parser.add_argument('--model_name', type=str, default=None,
+                        help='Model name决定要不要使用自监督', choices=[None, 'simsiam' , 'barlowtwins'])
     parser.add_argument('--lr', type=float, default=0.001,
                         help='Learning rate.')
 
@@ -29,9 +30,9 @@ def add_experiment_args(parser: ArgumentParser) -> None:
     parser.add_argument('--optim_nesterov', type=int, default=0,
                         help='optimizer nesterov momentum.')
 
-    parser.add_argument('--n_epochs', type=int, default=30,
+    parser.add_argument('--n_epochs', type=int, default=200,
                         help='Batch size.')
-    parser.add_argument('--batch_size', type=int,
+    parser.add_argument('--batch_size', type=int, default=64,
                         help='Batch size.')
 
     parser.add_argument('--distributed', type=str, default='no', choices=['no', 'dp', 'ddp'])
@@ -61,7 +62,7 @@ def add_rehearsal_args(parser: ArgumentParser) -> None:
     Adds the arguments used by all the rehearsal-based methods
     :param parser: the parser instance
     """
-    parser.add_argument('--buffer_size', type=int, required=True,
+    parser.add_argument('--buffer_size', type=int, default=5000,
                         help='The size of the memory buffer.')
     parser.add_argument('--minibatch_size', type=int,
                         help='The batch size of the memory buffer.')

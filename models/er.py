@@ -2,6 +2,7 @@
 # All rights reserved.
 # This source code is licensed under the license found in the
 # LICENSE file in the root directory of this source tree.
+import time
 
 import torch
 
@@ -33,17 +34,37 @@ class Er(ContinualModel):
 
         self.opt.zero_grad()
         if not self.buffer.is_empty():
+            print(self.buffer.examples.shape)
+            s_t = time.time()
             buf_inputs, buf_labels = self.buffer.get_data(
                 self.args.minibatch_size, transform=self.transform)
+            e_t = time.time()
+            print('buffer search time', e_t-s_t)
             inputs = torch.cat((inputs, buf_inputs))
             labels = torch.cat((labels, buf_labels))
 
+        s_t = time.time()
         outputs = self.net(inputs)
-        loss = self.loss(outputs, labels)
+        e_t = time.time()
+        print('model inference time', e_t - s_t)
+
+        s_t = time.time()
+        loss = self.loss(outputs, labels.type(torch.LongTensor).to(self.device))
+        e_t = time.time()
+        print('loss calculate time', e_t - s_t)
+
+        s_t = time.time()
         loss.backward()
         self.opt.step()
+        e_t = time.time()
+        print('反向传播和参数更新time', e_t - s_t)
 
+        s_t = time.time()
         self.buffer.add_data(examples=not_aug_inputs,
                              labels=labels[:real_batch_size])
+        e_t = time.time()
+        print('buffer 增加的time', e_t - s_t)
+        # import  os
+        # os.pause()
 
         return loss.item()

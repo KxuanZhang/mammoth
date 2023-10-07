@@ -5,6 +5,9 @@
 
 import os
 import importlib
+from .simsiam import SimSiam
+from .barlowtwins import BarlowTwins
+
 
 def get_all_models():
     return [model.split('.')[0] for model in os.listdir('../models')
@@ -16,5 +19,17 @@ for model in get_all_models():
     class_name = {x.lower():x for x in mod.__dir__()}[model.replace('_', '')]
     names[model] = getattr(mod, class_name)
 
-def get_model(args, backbone, loss, transform):
+def get_model(args, backbone, loss, transform, device='cuda:0'):
+    # args.model_name 是 simsiam, barlowtwins, None
+    if not args.model_name is None:
+        if args.model_name == 'simsiam':
+            backbone = SimSiam(backbone).to(device)
+            if args.model.proj_layers is not None:
+                backbone.projector.set_layers(args.model.proj_layers)
+        elif args.model_name == 'barlowtwins':
+            backbone = BarlowTwins(backbone, device).to(
+                device)
+            if args.model.proj_layers is not None:
+                backbone.projector.set_layers(args.model.proj_layers)
+
     return names[args.model](backbone, loss, args, transform)
