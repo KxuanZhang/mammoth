@@ -33,7 +33,7 @@ from utils.continual_training import train as ctrain
 from utils.distributed import make_dp
 from utils.training import train
 
-
+# 应该是下载mnist的
 def lecun_fix():
     # Yann moved his website to CloudFlare. You need this now
     from six.moves import urllib  # pyright: ignore
@@ -96,7 +96,7 @@ def parse_args():
 
 
 def main(args=None):
-    lecun_fix()
+    # lecun_fix()
     if args is None:
         args = parse_args()
 

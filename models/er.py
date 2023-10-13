@@ -39,31 +39,32 @@ class Er(ContinualModel):
             buf_inputs, buf_labels = self.buffer.get_data(
                 self.args.minibatch_size, transform=self.transform)
             e_t = time.time()
-            print('buffer search time', e_t-s_t)
+            # print('buffer search time', e_t-s_t)
             inputs = torch.cat((inputs, buf_inputs))
             labels = torch.cat((labels, buf_labels))
 
         s_t = time.time()
         outputs = self.net(inputs)
         e_t = time.time()
-        print('model inference time', e_t - s_t)
+        # print('model inference time', e_t - s_t)
 
         s_t = time.time()
         loss = self.loss(outputs, labels.type(torch.LongTensor).to(self.device))
+        print('loss', loss.cpu().item())
         e_t = time.time()
-        print('loss calculate time', e_t - s_t)
+        # print('loss calculate time', e_t - s_t)
 
         s_t = time.time()
         loss.backward()
         self.opt.step()
         e_t = time.time()
-        print('反向传播和参数更新time', e_t - s_t)
+        # print('反向传播和参数更新time', e_t - s_t)
 
         s_t = time.time()
         self.buffer.add_data(examples=not_aug_inputs,
                              labels=labels[:real_batch_size])
         e_t = time.time()
-        print('buffer 增加的time', e_t - s_t)
+        # print('buffer 增加的time', e_t - s_t)
         # import  os
         # os.pause()
 
