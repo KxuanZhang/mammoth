@@ -8,12 +8,11 @@ from tqdm import tqdm
 from arguments import get_args
 from datasets.augmentations import get_aug
 from models import get_model
-from tools import AverageMeter, knn_monitor, Logger, file_exist_check
+from utils.tools import AverageMeter, knn_monitor, Logger, file_exist_check
 from datasets import get_dataset
 from datetime import datetime
 from utils.loggers import *
 from utils.metrics import mask_classes
-from utils.loggers import CsvLogger
 from datasets.utils.continual_dataset import ContinualDataset
 from models.utils.continual_model import ContinualModel
 from typing import Tuple

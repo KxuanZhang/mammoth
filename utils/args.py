@@ -39,7 +39,7 @@ def add_experiment_args(parser: ArgumentParser) -> None:
 
 
 def add_management_args(parser: ArgumentParser) -> None:
-    parser.add_argument('--seed', type=int, default=None,
+    parser.add_argument('--seed', type=int, default=0,
                         help='The random seed.')
     parser.add_argument('--notes', type=str, default=None,
                         help='Notes for this run.')

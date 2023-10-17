@@ -4,7 +4,8 @@
 # LICENSE file in the root directory of this source tree.
 
 import numpy as np
-
+import torch
+from datasets.utils.continual_dataset import ContinualDataset
 
 def backward_transfer(results):
     n_tasks = len(results)
@@ -35,3 +36,19 @@ def forgetting(results):
         li.append(maxx[i] - results[-1][i])
 
     return np.mean(li)
+
+
+def mask_classes(outputs: torch.Tensor, dataset: ContinualDataset, k: int):
+    """
+    Given the output tensor, the dataset at hand and the current task,
+    masks the former by setting the responses for the other tasks at -inf.
+    It is used to obtain the results for the task-il setting.
+    :param outputs: the output tensor
+    :param dataset: the continual dataset
+    :param k: the task index
+    """
+    outputs[:, 0:k * dataset.N_CLASSES_PER_TASK] = -float('inf')
+    outputs[:, (k + 1) * dataset.N_CLASSES_PER_TASK:
+               dataset.N_TASKS * dataset.N_CLASSES_PER_TASK] = -float('inf')
+
+    return outputs
